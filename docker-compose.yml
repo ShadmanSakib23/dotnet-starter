@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:18
+    container_name: starter_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-local_db}
+      POSTGRES_USER: ${DB_USER:-local_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-local_password}
+    ports:
+      - "${DB_PORT:-5435}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
