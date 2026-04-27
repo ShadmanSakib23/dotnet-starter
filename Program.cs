@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StarterApp.Data;
+using StarterApp.Models;
+using StarterApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString
     ("DefaultConnection")));
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
  
 // Configure the HTTP request pipeline.
@@ -54,5 +61,7 @@ app.MapGet("/db/test", async (ApplicationDbContext db) =>
     }
 })
 .WithName("DatabaseTest");
+
+app.MapControllers();
 
 app.Run();
