@@ -206,7 +206,11 @@ public class AuthService : IAuthService
         var jwtSecret = _configuration["Jwt:Secret"] 
             ?? throw new InvalidOperationException("JWT Secret not configured");
         var jwtIssuer = _configuration["Jwt:Issuer"];
+        var jwtAudience = _configuration["Jwt:Audience"];
         var refreshExpirationDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpirationDays");
+
+        _logger.LogInformation("Generating refresh token. Issuer: {Issuer}, Audience: {Audience}, ExpiryDays: {Days}", 
+            jwtIssuer, jwtAudience, refreshExpirationDays);
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -219,7 +223,7 @@ public class AuthService : IAuthService
 
         var token = new JwtSecurityToken(
             issuer: jwtIssuer,
-            audience: jwtIssuer,
+            audience: jwtAudience,
             claims: claims,
             expires: DateTime.UtcNow.AddDays(refreshExpirationDays),
             signingCredentials: credentials
@@ -233,9 +237,23 @@ public class AuthService : IAuthService
         var jwtSecret = _configuration["Jwt:Secret"] 
             ?? throw new InvalidOperationException("JWT Secret not configured");
         var jwtIssuer = _configuration["Jwt:Issuer"];
+        var jwtAudience = _configuration["Jwt:Audience"];
+
+        _logger.LogInformation("Validating refresh token. Expected Issuer: {Issuer}, Expected Audience: {Audience}", 
+            jwtIssuer, jwtAudience);
 
         var tokenHandler = new JwtSecurityTokenHandler();
+        // Disable claim type mapping to preserve original claim names
+        tokenHandler.InboundClaimTypeMap.Clear();
+        
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+        // First, decode without validation to see what's in the token
+        var jwtToken = tokenHandler.ReadJwtToken(refreshToken);
+        _logger.LogInformation("Token contents - Issuer: {Issuer}, Audience: {Audience}, Expiry: {Expiry}", 
+            jwtToken.Issuer, 
+            string.Join(", ", jwtToken.Audiences), 
+            jwtToken.ValidTo);
 
         try
         {
@@ -246,7 +264,7 @@ public class AuthService : IAuthService
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtIssuer,
-                ValidAudience = jwtIssuer,
+                ValidAudience = jwtAudience,
                 IssuerSigningKey = securityKey,
                 ClockSkew = TimeSpan.Zero
             };
@@ -256,20 +274,25 @@ public class AuthService : IAuthService
             var typeClaim = principal.Claims.FirstOrDefault(c => c.Type == "type");
             if (typeClaim?.Value != "refresh")
             {
+                _logger.LogWarning("Token type claim mismatch. Expected 'refresh', got '{Type}'", typeClaim?.Value);
                 throw new SecurityTokenException("Not a refresh token");
             }
 
-            var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+            // After clearing InboundClaimTypeMap, "sub" stays as "sub"
+            var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == "sub");
             if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
             {
+                _logger.LogWarning("Invalid user ID in token. Available claims: {Claims}", 
+                    string.Join(", ", principal.Claims.Select(c => $"{c.Type}={c.Value}")));
                 throw new SecurityTokenException("Invalid user ID in token");
             }
 
+            _logger.LogInformation("Refresh token validated successfully for user {UserId}", userId);
             return userId;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Refresh token validation failed");
+            _logger.LogWarning(ex, "Refresh token validation failed: {Message}", ex.Message);
             throw new UnauthorizedAccessException("Invalid or expired refresh token");
         }
     }
