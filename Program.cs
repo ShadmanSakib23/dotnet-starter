@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StarterApp.Data;
-using StarterApp.Interfaces;
-using StarterApp.Models;
-using StarterApp.Services;
+using StarterApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +17,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString
     ("DefaultConnection")));
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddApplicationServices();
 
 // Configure JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"] 
