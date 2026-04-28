@@ -1,6 +1,6 @@
 using StarterApp.DTOs;
 
-namespace StarterApp.Services;
+namespace StarterApp.Interfaces;
 
 public interface IAuthService
 {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StarterApp.DTOs;
 using StarterApp.Exceptions;
+using StarterApp.Interfaces;
 using StarterApp.Services;
 
 namespace StarterApp.Controllers;

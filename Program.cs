@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StarterApp.Data;
+using StarterApp.Interfaces;
 using StarterApp.Models;
 using StarterApp.Services;
 

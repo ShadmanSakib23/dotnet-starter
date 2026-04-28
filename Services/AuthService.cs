@@ -7,6 +7,7 @@ using System.Text;
 using StarterApp.Data;
 using StarterApp.DTOs;
 using StarterApp.Exceptions;
+using StarterApp.Interfaces;
 using StarterApp.Models;
 
 namespace StarterApp.Services;
