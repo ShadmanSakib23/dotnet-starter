@@ -1,31 +1,30 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using StarterApp.Data;
 using StarterApp.DTOs;
 using StarterApp.Exceptions;
 using StarterApp.Interfaces;
 using StarterApp.Models;
+using StarterApp.Repositories;
 
 namespace StarterApp.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly ILogger<AuthService> _logger;
     private readonly IConfiguration _configuration;
 
     public AuthService(
-        ApplicationDbContext context, 
+        IUserRepository userRepository,
         IPasswordHasher<User> passwordHasher, 
         ILogger<AuthService> logger,
         IConfiguration configuration)
     {
-        _context = context;
+        _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _logger = logger;
         _configuration = configuration;
@@ -35,7 +34,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            var userExists = await UserExistsAsync(request.Email, request.Email);
+            var userExists = await _userRepository.UserExistsAsync(request.Email, request.Email);
             if (userExists)
             {
                 _logger.LogWarning("Registration attempt with existing email: {Email}", request.Email);
@@ -51,8 +50,7 @@ public class AuthService : IAuthService
                 PasswordHash = passwordHash
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.AddAsync(user);
 
             _logger.LogInformation("User {Email} registered successfully with ID {UserId}",
                 user.Email, user.Id);
@@ -74,19 +72,11 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<bool> UserExistsAsync(string username, string email)
-    {
-        return await _context.Users
-            .AnyAsync(u => u.Email.ToLower() == email.ToLower() ||
-                          (u.Username != null && u.Username.ToLower() == username.ToLower()));
-    }
-
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
         try
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+            var user = await _userRepository.GetByEmailAsync(request.Email);
 
             if (user == null)
             {
@@ -139,7 +129,7 @@ public class AuthService : IAuthService
         {
             var userId = ValidateRefreshToken(request.RefreshToken);
             
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
             {
                 _logger.LogWarning("User not found for refresh token");
