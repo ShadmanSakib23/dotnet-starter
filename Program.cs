@@ -67,6 +67,7 @@ app.MapGet("/health", () =>
 {
     return Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow});
 })
+.AllowAnonymous()
 .WithName("HealthCheck");
 
 app.MapGet("/db/test", async (ApplicationDbContext db) =>
@@ -92,6 +93,7 @@ app.MapGet("/db/test", async (ApplicationDbContext db) =>
         );
     }
 })
+.AllowAnonymous()
 .WithName("DatabaseTest");
 
 app.MapControllers();
