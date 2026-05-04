@@ -37,6 +37,20 @@ public class Repository<T> : IRepository<T> where T : class
         await _context.SaveChangesAsync();
     }
 
+    public virtual async Task<T> UpdateAsync(Guid id, Action<T> applyChanges)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity == null)
+        {
+            throw new InvalidOperationException($"Entity with id {id} not found.");
+        }
+
+        applyChanges(entity);
+        await _context.SaveChangesAsync();
+
+        return entity;
+    }
+
     public virtual async Task DeleteAsync(Guid id)
     {
         var entity = await GetByIdAsync(id);

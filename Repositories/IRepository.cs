@@ -6,6 +6,7 @@ public interface IRepository<T> where T : class
     Task<IEnumerable<T>> GetAllAsync();
     Task<T> AddAsync(T entity);
     Task UpdateAsync(T entity);
+    Task<T> UpdateAsync(Guid id, Action<T> applyChanges);
     Task DeleteAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
 }
