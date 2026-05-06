@@ -27,16 +27,6 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
             query = query.Where(t => t.Category == filter.Category);
         }
 
-        if (filter.MinAmount.HasValue)
-        {
-            query = query.Where(t => t.Amount >= filter.MinAmount.Value);
-        }
-
-        if (filter.MaxAmount.HasValue)
-        {
-            query = query.Where(t => t.Amount <= filter.MaxAmount.Value);
-        }
-
         if (filter.StartDate.HasValue)
         {
             query = query.Where(t => t.ProcessedAt >= filter.StartDate.Value);
@@ -46,7 +36,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         {
             query = query.Where(t => t.ProcessedAt <= filter.EndDate.Value);
         }
-
+        
         // Get total count before pagination
         var totalCount = await query.CountAsync();
 

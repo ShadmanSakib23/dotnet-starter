@@ -6,5 +6,5 @@ namespace StarterApp.Repositories;
 
 public interface ITransactionRepository : IRepository<Transaction>
 {
-    Task<PagedResult<Transaction>> GetUserTransactionsAsync(Guid userId, TransactionFilterRequest filter);
+    Task<PagedResult<Transaction>> GetUserTransactionsAsync (Guid userId, TransactionFilterRequest filter);
 }

@@ -69,11 +69,6 @@ public class TransactionService : ITransactionService
     {
         try
         {
-            // Validate pagination parameters
-            if (filter.Page < 1) filter.Page = 1;
-            if (filter.PageSize < 1) filter.PageSize = 10;
-            if (filter.PageSize > 100) filter.PageSize = 100;
-
             var pagedTransactions = await _transactionRepository.GetUserTransactionsAsync(userId, filter);
 
             return new PagedResult<TransactionResponse>
