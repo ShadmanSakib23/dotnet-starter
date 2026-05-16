@@ -32,7 +32,8 @@ public class UserService : IUserService
             FirstName = user.FirstName,
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
-            UpdatedAt = user.UpdatedAt
+            UpdatedAt = user.UpdatedAt,
+            Role = user.Role.ToString()
         };
     }
 
@@ -55,7 +56,8 @@ public class UserService : IUserService
             FirstName = updatedUser.FirstName,
             LastName = updatedUser.LastName,
             CreatedAt = updatedUser.CreatedAt,
-            UpdatedAt = updatedUser.UpdatedAt
+            UpdatedAt = updatedUser.UpdatedAt,
+            Role = updatedUser.Role.ToString()
         };
     }
     
