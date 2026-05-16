@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StarterApp.Models;
+using StarterApp.Enums;
 
 namespace StarterApp.Data.Configurations;
 
@@ -27,5 +28,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.UpdatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        builder.Property(u => u.Role)
+            .HasConversion<string>()
+            .HasColumnName("role_type")
+            .HasDefaultValue(UserRole.User)
+            .IsRequired();
     }
 }

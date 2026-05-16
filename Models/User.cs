@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using StarterApp.Enums;
 
 namespace StarterApp.Models;
 
@@ -37,4 +38,6 @@ public class User
 
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; }
+
+    public UserRole Role { get; set; } = UserRole.User;
 }
