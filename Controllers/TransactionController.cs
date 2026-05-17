@@ -8,7 +8,7 @@ namespace StarterApp.Controllers;
 
 [ApiController]
 [Route("api/transactions")]
-[Authorize]
+[Authorize(Policy = "AnyRole")]
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;

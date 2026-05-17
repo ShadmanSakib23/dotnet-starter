@@ -24,4 +24,18 @@ public static class ServiceCollectionExtensions
         
         return services;
     }
+
+    public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+    {
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOrAbove", policy =>
+                policy.RequireRole("Admin", "SuperAdmin"));
+            
+            options.AddPolicy("AnyRole", policy =>
+                policy.RequireRole("User", "Admin", "SuperAdmin"));
+        });
+        
+        return services;
+    }
 }

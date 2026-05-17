@@ -50,7 +50,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationPolicies();
 
 var app = builder.Build();
  

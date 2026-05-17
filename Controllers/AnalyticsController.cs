@@ -8,7 +8,7 @@ namespace StarterApp.Controllers;
 
 [ApiController]
 [Route("api/analytics")]
-[Authorize]
+[Authorize(Policy = "AnyRole")]
 public class AnalyticsController : ControllerBase
 {
     private readonly IAnalyticsService _analyticsService;
