@@ -6,6 +6,7 @@ using System.Text;
 using StarterApp.DTOs;
 using StarterApp.Exceptions;
 using StarterApp.Interfaces;
+using StarterApp.Enums;
 using StarterApp.Models;
 using StarterApp.Repositories;
 
@@ -47,7 +48,8 @@ public class AuthService : IAuthService
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash,
+                Role = UserRole.User
             };
 
             await _userRepository.AddAsync(user);
