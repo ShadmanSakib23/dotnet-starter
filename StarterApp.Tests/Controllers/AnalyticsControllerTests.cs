@@ -87,12 +87,9 @@ public class AnalyticsControllerTests
         _analyticsServiceMock.Setup(s => s.GetCategoryAnalyticsAsync(userId, null, null))
             .ThrowsAsync(new Exception("Unexpected"));
 
-        // Act
-        var actionResult = await _controller.GetCategoryAnalytics(null, null);
-        var result = actionResult.Result!;
-
-        // Assert
-        ((ObjectResult)result).StatusCode.Should().Be(500);
+        // Act & Assert — middleware handles unhandled exceptions → 500
+        var act = async () => await _controller.GetCategoryAnalytics(null, null);
+        await act.Should().ThrowAsync<Exception>();
     }
 
     // ─── GetMonthlyAnalytics ──────────────────────────────────────────────────
@@ -136,12 +133,9 @@ public class AnalyticsControllerTests
         _analyticsServiceMock.Setup(s => s.GetMonthlyAnalyticsAsync(userId, 6))
             .ThrowsAsync(new Exception("Unexpected"));
 
-        // Act
-        var actionResult = await _controller.GetMonthlyAnalytics(6);
-        var result = actionResult.Result!;
-
-        // Assert
-        ((ObjectResult)result).StatusCode.Should().Be(500);
+        // Act & Assert — middleware handles unhandled exceptions → 500
+        var act = async () => await _controller.GetMonthlyAnalytics(6);
+        await act.Should().ThrowAsync<Exception>();
     }
 
     // ─── GetSummaryAnalytics ──────────────────────────────────────────────────
@@ -184,11 +178,8 @@ public class AnalyticsControllerTests
         _analyticsServiceMock.Setup(s => s.GetSummaryAnalyticsAsync(userId, null, null))
             .ThrowsAsync(new Exception("Unexpected"));
 
-        // Act
-        var actionResult = await _controller.GetSummaryAnalytics(null, null);
-        var result = actionResult.Result!;
-
-        // Assert
-        ((ObjectResult)result).StatusCode.Should().Be(500);
+        // Act & Assert — middleware handles unhandled exceptions → 500
+        var act = async () => await _controller.GetSummaryAnalytics(null, null);
+        await act.Should().ThrowAsync<Exception>();
     }
 }

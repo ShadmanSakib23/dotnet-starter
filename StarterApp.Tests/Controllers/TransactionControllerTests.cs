@@ -134,14 +134,10 @@ public class TransactionControllerTests
         _transactionServiceMock.Setup(s => s.GetTransactionAsync(userId, transactionId))
             .ThrowsAsync(new KeyNotFoundException("Transaction not found"));
 
-        // Act
-        var actionResult = await _controller.GetTransaction(transactionId);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<NotFoundObjectResult>().Which.StatusCode.Should().Be(404);
+        // Act & Assert — middleware handles KeyNotFoundException → 404
+        var act = async () => await _controller.GetTransaction(transactionId);
+        await act.Should().ThrowAsync<KeyNotFoundException>();
     }
-
     [Fact]
     public async Task GetTransaction_WhenUserNotOwner_Returns403Forbidden()
     {
@@ -152,14 +148,10 @@ public class TransactionControllerTests
         _transactionServiceMock.Setup(s => s.GetTransactionAsync(userId, transactionId))
             .ThrowsAsync(new UnauthorizedAccessException("Not the owner"));
 
-        // Act
-        var actionResult = await _controller.GetTransaction(transactionId);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<ForbidResult>();
+        // Act & Assert — middleware handles UnauthorizedAccessException → 403
+        var act = async () => await _controller.GetTransaction(transactionId);
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
-
     // ─── GetTransactions ──────────────────────────────────────────────────────
 
     [Fact]
@@ -217,11 +209,9 @@ public class TransactionControllerTests
         _transactionServiceMock.Setup(s => s.DeleteTransactionAsync(userId, transactionId))
             .ThrowsAsync(new KeyNotFoundException("Transaction not found"));
 
-        // Act
-        var result = await _controller.DeleteTransaction(transactionId);
-
-        // Assert
-        result.Should().BeOfType<NotFoundObjectResult>().Which.StatusCode.Should().Be(404);
+        // Act & Assert — middleware handles KeyNotFoundException → 404
+        var act = async () => await _controller.DeleteTransaction(transactionId);
+        await act.Should().ThrowAsync<KeyNotFoundException>();
     }
 
     [Fact]
@@ -234,10 +224,8 @@ public class TransactionControllerTests
         _transactionServiceMock.Setup(s => s.DeleteTransactionAsync(userId, transactionId))
             .ThrowsAsync(new UnauthorizedAccessException("Not the owner"));
 
-        // Act
-        var result = await _controller.DeleteTransaction(transactionId);
-
-        // Assert
-        result.Should().BeOfType<ForbidResult>();
+        // Act & Assert — middleware handles UnauthorizedAccessException → 403
+        var act = async () => await _controller.DeleteTransaction(transactionId);
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 }

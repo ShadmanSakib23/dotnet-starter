@@ -6,6 +6,7 @@ using FluentAssertions;
 using StarterApp.Controllers;
 using StarterApp.DTOs;
 using StarterApp.Enums;
+using StarterApp.Exceptions;
 using StarterApp.Interfaces;
 
 namespace StarterApp.Tests.Controllers;
@@ -91,12 +92,9 @@ public class UserControllerTests
         _userServiceMock.Setup(s => s.GetUserAsync(userId))
             .ThrowsAsync(new KeyNotFoundException("User not found"));
 
-        // Act
-        var actionResult = await _controller.Retrieve();
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<NotFoundObjectResult>().Which.StatusCode.Should().Be(404);
+        // Act & Assert — middleware handles KeyNotFoundException → 404
+        var act = async () => await _controller.Retrieve();
+        await act.Should().ThrowAsync<KeyNotFoundException>();
     }
 
     // ─── UpdateProfile (Update) ───────────────────────────────────────────────
@@ -203,12 +201,9 @@ public class UserControllerTests
         _userServiceMock.Setup(s => s.GetUserByIdAsync(adminId, targetId))
             .ThrowsAsync(new KeyNotFoundException("User not found"));
 
-        // Act
-        var actionResult = await _controller.GetUserById(targetId);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<NotFoundObjectResult>().Which.StatusCode.Should().Be(404);
+        // Act & Assert — middleware handles KeyNotFoundException → 404
+        var act = async () => await _controller.GetUserById(targetId);
+        await act.Should().ThrowAsync<KeyNotFoundException>();
     }
 
     // ─── DeleteUser ───────────────────────────────────────────────────────────
@@ -252,11 +247,9 @@ public class UserControllerTests
         _userServiceMock.Setup(s => s.DeleteUserAsync(adminId, targetId))
             .ThrowsAsync(new KeyNotFoundException("User not found"));
 
-        // Act
-        var result = await _controller.DeleteUser(targetId);
-
-        // Assert
-        result.Should().BeOfType<NotFoundObjectResult>().Which.StatusCode.Should().Be(404);
+        // Act & Assert — middleware handles KeyNotFoundException → 404
+        var act = async () => await _controller.DeleteUser(targetId);
+        await act.Should().ThrowAsync<KeyNotFoundException>();
     }
 
     // ─── AssignRole ───────────────────────────────────────────────────────────
@@ -307,12 +300,9 @@ public class UserControllerTests
         _userServiceMock.Setup(s => s.AssignRoleAsync(adminId, targetId, UserRole.Admin))
             .ThrowsAsync(new KeyNotFoundException("User not found"));
 
-        // Act
-        var actionResult = await _controller.AssignRole(targetId, request);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<NotFoundObjectResult>().Which.StatusCode.Should().Be(404);
+        // Act & Assert — middleware handles KeyNotFoundException → 404
+        var act = async () => await _controller.AssignRole(targetId, request);
+        await act.Should().ThrowAsync<KeyNotFoundException>();
     }
 
     [Fact]
@@ -324,13 +314,10 @@ public class UserControllerTests
         var targetId = Guid.NewGuid();
         var request = new AssignRoleRequest { Role = UserRole.User };
         _userServiceMock.Setup(s => s.AssignRoleAsync(adminId, targetId, UserRole.User))
-            .ThrowsAsync(new InvalidOperationException("Cannot downgrade role"));
+            .ThrowsAsync(new BadRequestException("Cannot downgrade role"));
 
-        // Act
-        var actionResult = await _controller.AssignRole(targetId, request);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<BadRequestObjectResult>().Which.StatusCode.Should().Be(400);
+        // Act & Assert — middleware handles BadRequestException → 400
+        var act = async () => await _controller.AssignRole(targetId, request);
+        await act.Should().ThrowAsync<BadRequestException>();
     }
 }

@@ -111,9 +111,9 @@ public class ExceptionMiddlewareTests
     }
 
     [Fact]
-    public async Task ExceptionMiddleware_InvalidOperationException_Returns400WithProblemDetails()
+    public async Task ExceptionMiddleware_BadRequestException_Returns400WithProblemDetails()
     {
-        var exception = new InvalidOperationException("Bad request");
+        var exception = new BadRequestException("Bad request");
         var middleware = CreateMiddleware(exception);
         var context = CreateHttpContext();
 

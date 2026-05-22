@@ -125,7 +125,7 @@ public class AuthServiceTests
     }
 
     [Fact]
-    public async Task LoginAsync_WithInvalidEmail_ThrowsUnauthorizedAccessException()
+    public async Task LoginAsync_WithInvalidEmail_ThrowsAuthenticationException()
     {
         // Arrange
         var request = new LoginRequest { Email = "notfound@example.com", Password = "any" };
@@ -137,11 +137,11 @@ public class AuthServiceTests
         var act = async () => await _sut.LoginAsync(request);
 
         // Assert
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        await act.Should().ThrowAsync<AuthenticationException>();
     }
 
     [Fact]
-    public async Task LoginAsync_WithWrongPassword_ThrowsUnauthorizedAccessException()
+    public async Task LoginAsync_WithWrongPassword_ThrowsAuthenticationException()
     {
         // Arrange
         var user = UserFactory.Create(email: "user@example.com");
@@ -157,7 +157,7 @@ public class AuthServiceTests
         var act = async () => await _sut.LoginAsync(request);
 
         // Assert
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        await act.Should().ThrowAsync<AuthenticationException>();
     }
 
     [Fact]
@@ -184,7 +184,7 @@ public class AuthServiceTests
     }
 
     [Fact]
-    public async Task RefreshTokenAsync_WithInvalidToken_ThrowsUnauthorizedAccessException()
+    public async Task RefreshTokenAsync_WithInvalidToken_ThrowsAuthenticationException()
     {
         // Arrange
         var request = new RefreshRequest { RefreshToken = "this.is.not.a.valid.token" };
@@ -193,7 +193,36 @@ public class AuthServiceTests
         var act = async () => await _sut.RefreshTokenAsync(request);
 
         // Assert
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        await act.Should().ThrowAsync<AuthenticationException>();
+    }
+
+    [Fact]
+    public async Task Login_WithInvalidCredentials_ThrowsAuthenticationException()
+    {
+        // Arrange
+        var request = new LoginRequest { Email = "notfound@example.com", Password = "any" };
+        _userRepositoryMock
+            .Setup(r => r.GetByEmailAsync(request.Email))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var act = async () => await _sut.LoginAsync(request);
+
+        // Assert
+        await act.Should().ThrowAsync<AuthenticationException>();
+    }
+
+    [Fact]
+    public async Task Refresh_WithInvalidToken_ThrowsAuthenticationException()
+    {
+        // Arrange
+        var request = new RefreshRequest { RefreshToken = "this.is.not.a.valid.token" };
+
+        // Act
+        var act = async () => await _sut.RefreshTokenAsync(request);
+
+        // Assert
+        await act.Should().ThrowAsync<AuthenticationException>();
     }
 
     [Fact]

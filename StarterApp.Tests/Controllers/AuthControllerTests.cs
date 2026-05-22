@@ -58,13 +58,9 @@ public class AuthControllerTests
         _authServiceMock.Setup(s => s.RegisterUserAsync(request))
             .ThrowsAsync(new ConflictException("Email already in use"));
 
-        // Act
-        var actionResult = await _controller.Register(request);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<ConflictObjectResult>()
-            .Which.StatusCode.Should().Be(409);
+        // Act & Assert — middleware handles ConflictException → 409
+        var act = async () => await _controller.Register(request);
+        await act.Should().ThrowAsync<ConflictException>();
     }
 
     [Fact]
@@ -75,12 +71,9 @@ public class AuthControllerTests
         _authServiceMock.Setup(s => s.RegisterUserAsync(request))
             .ThrowsAsync(new Exception("Unexpected"));
 
-        // Act
-        var actionResult = await _controller.Register(request);
-        var result = actionResult.Result!;
-
-        // Assert
-        ((ObjectResult)result).StatusCode.Should().Be(500);
+        // Act & Assert — middleware handles unhandled exceptions → 500
+        var act = async () => await _controller.Register(request);
+        await act.Should().ThrowAsync<Exception>();
     }
 
     // ─── Login ───────────────────────────────────────────────────────────────
@@ -107,20 +100,16 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task Login_WithInvalidCredentials_Returns401Unauthorized()
+    public async Task Login_WithInvalidCredentials_PropagatesAuthenticationException()
     {
         // Arrange
         var request = new LoginRequest { Email = "bad@example.com", Password = "wrong" };
         _authServiceMock.Setup(s => s.LoginAsync(request))
-            .ThrowsAsync(new UnauthorizedAccessException("Invalid credentials"));
+            .ThrowsAsync(new AuthenticationException("Invalid credentials"));
 
-        // Act
-        var actionResult = await _controller.Login(request);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<UnauthorizedObjectResult>()
-            .Which.StatusCode.Should().Be(401);
+        // Act & Assert — middleware handles AuthenticationException → 401
+        var act = async () => await _controller.Login(request);
+        await act.Should().ThrowAsync<AuthenticationException>();
     }
 
     [Fact]
@@ -131,12 +120,9 @@ public class AuthControllerTests
         _authServiceMock.Setup(s => s.LoginAsync(request))
             .ThrowsAsync(new Exception("Unexpected"));
 
-        // Act
-        var actionResult = await _controller.Login(request);
-        var result = actionResult.Result!;
-
-        // Assert
-        ((ObjectResult)result).StatusCode.Should().Be(500);
+        // Act & Assert — middleware handles unhandled exceptions → 500
+        var act = async () => await _controller.Login(request);
+        await act.Should().ThrowAsync<Exception>();
     }
 
     // ─── Refresh ─────────────────────────────────────────────────────────────
@@ -163,20 +149,16 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task Refresh_WithInvalidToken_Returns401Unauthorized()
+    public async Task Refresh_WithInvalidToken_PropagatesAuthenticationException()
     {
         // Arrange
         var request = new RefreshRequest { RefreshToken = "bad-token" };
         _authServiceMock.Setup(s => s.RefreshTokenAsync(request))
-            .ThrowsAsync(new UnauthorizedAccessException("Invalid refresh token"));
+            .ThrowsAsync(new AuthenticationException("Invalid refresh token"));
 
-        // Act
-        var actionResult = await _controller.Refresh(request);
-        var result = actionResult.Result!;
-
-        // Assert
-        result.Should().BeOfType<UnauthorizedObjectResult>()
-            .Which.StatusCode.Should().Be(401);
+        // Act & Assert — middleware handles AuthenticationException → 401
+        var act = async () => await _controller.Refresh(request);
+        await act.Should().ThrowAsync<AuthenticationException>();
     }
 
     [Fact]
@@ -187,11 +169,8 @@ public class AuthControllerTests
         _authServiceMock.Setup(s => s.RefreshTokenAsync(request))
             .ThrowsAsync(new Exception("Unexpected"));
 
-        // Act
-        var actionResult = await _controller.Refresh(request);
-        var result = actionResult.Result!;
-
-        // Assert
-        ((ObjectResult)result).StatusCode.Should().Be(500);
+        // Act & Assert — middleware handles unhandled exceptions → 500
+        var act = async () => await _controller.Refresh(request);
+        await act.Should().ThrowAsync<Exception>();
     }
 }

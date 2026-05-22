@@ -2,6 +2,7 @@ using FluentAssertions;
 using Moq;
 using StarterApp.DTOs;
 using StarterApp.Enums;
+using StarterApp.Exceptions;
 using StarterApp.Models;
 using StarterApp.Repositories;
 using StarterApp.Services;
@@ -260,7 +261,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task AssignRoleAsync_WhenSameRole_ThrowsInvalidOperationException()
+    public async Task AssignRoleAsync_WhenSameRole_ThrowsBadRequestException()
     {
         // Arrange
         var requesterId = Guid.NewGuid();
@@ -274,11 +275,11 @@ public class UserServiceTests
         var act = async () => await _sut.AssignRoleAsync(requesterId, user.Id, UserRole.Admin);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<BadRequestException>();
     }
 
     [Fact]
-    public async Task AssignRoleAsync_WhenDemoting_ThrowsInvalidOperationException()
+    public async Task AssignRoleAsync_WhenDemoting_ThrowsBadRequestException()
     {
         // Arrange
         var requesterId = Guid.NewGuid();
@@ -292,7 +293,7 @@ public class UserServiceTests
         var act = async () => await _sut.AssignRoleAsync(requesterId, user.Id, UserRole.User);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<BadRequestException>();
     }
 
     [Fact]
