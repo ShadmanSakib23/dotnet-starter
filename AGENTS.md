@@ -22,7 +22,7 @@ Controllers → Services → Repositories → EF Core (PostgreSQL)
 
 | Layer | Location | Role |
 |-------|----------|------|
-| Controllers | `Controllers/` | HTTP entry point, exception→HTTP status mapping |
+| Controllers | `Controllers/` | HTTP entry point, delegates exception→HTTP mapping to `ExceptionMiddleware` |
 | Services | `Services/` | Business logic, auth checks |
 | Repositories | `Repositories/` | Data access only |
 | Models | `Models/` | EF Core entities |
@@ -74,15 +74,20 @@ When adding a new domain entity, follow this checklist in order:
 
 ## Error Handling Pattern
 
-Controllers catch exceptions and return appropriate status codes:
+`Middleware/ExceptionMiddleware.cs` intercepts all unhandled exceptions and returns RFC 7807 **ProblemDetails** JSON (`Content-Type: application/problem+json`). Controllers do **not** contain try/catch blocks.
 
-| Exception | Status |
-|-----------|--------|
-| `KeyNotFoundException` | 404 |
-| `ConflictException` | 409 |
-| `UnauthorizedAccessException` | 403 |
+| Exception | Status | Notes |
+|-----------|--------|-------|
+| `AuthenticationException` | 401 | Bad credentials / invalid refresh token |
+| `UnauthorizedAccessException` | 403 | Authenticated but not the resource owner |
+| `KeyNotFoundException` | 404 | Resource not found |
+| `BadRequestException` | 400 | Invalid client request / business rule violation |
+| `ConflictException` | 409 | Duplicate resource (e.g. email already registered) |
+| `Exception` | 500 | Unexpected server error |
 
-Custom exceptions are in `Exceptions/`.
+Logging: `LogWarning` for 4xx, `LogError` for 5xx.
+
+Custom exceptions are in `Exceptions/`. When adding new error cases, add a new exception class and a mapping in `ExceptionMiddleware`.
 
 ## Pitfalls
 
