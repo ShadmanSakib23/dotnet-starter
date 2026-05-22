@@ -84,14 +84,14 @@ public class AuthService : IAuthService
             if (user == null)
             {
                 _logger.LogWarning("Login attempt for non-existent email: {Email}", request.Email);
-                throw new UnauthorizedAccessException("Invalid email or password");
+                throw new AuthenticationException("Invalid email or password");
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
             if (result == PasswordVerificationResult.Failed)
             {
                 _logger.LogWarning("Failed login attempt for email: {Email}", request.Email);
-                throw new UnauthorizedAccessException("Invalid email or password");
+                throw new AuthenticationException("Invalid email or password");
             }
 
             var accessToken = GenerateAccessToken(user);
@@ -116,7 +116,7 @@ public class AuthService : IAuthService
                 }
             };
         }
-        catch (UnauthorizedAccessException)
+        catch (AuthenticationException)
         {
             throw;
         }
@@ -137,7 +137,7 @@ public class AuthService : IAuthService
             if (user == null)
             {
                 _logger.LogWarning("User not found for refresh token");
-                throw new UnauthorizedAccessException("Invalid refresh token");
+                throw new AuthenticationException("Invalid refresh token");
             }
 
             var accessToken = GenerateAccessToken(user);
@@ -154,14 +154,14 @@ public class AuthService : IAuthService
                 ExpiresAt = expiresAt
             };
         }
-        catch (UnauthorizedAccessException)
+        catch (AuthenticationException)
         {
             throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during token refresh");
-            throw new UnauthorizedAccessException("Invalid or expired refresh token");
+            throw new AuthenticationException("Invalid or expired refresh token");
         }
     }
 
