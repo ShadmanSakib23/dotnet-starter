@@ -36,20 +36,8 @@ public class UserController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _userService.GetUserAsync(userId);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "An error occurred during user retrieval." });
-        }
+        var result = await _userService.GetUserAsync(userId);
+        return Ok(result);
     }
 
     [HttpPatch("profile")]
@@ -65,21 +53,8 @@ public class UserController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _userService.UpdateUserAsync(userId, request);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "An error occurred during user retrieval." });
-        }
-
+        var result = await _userService.UpdateUserAsync(userId, request);
+        return Ok(result);
     }
 
     [HttpGet]
@@ -91,16 +66,8 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<PagedResult<UserResponse>>> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        try
-        {
-            var result = await _userService.GetAllUsersAsync(page, pageSize);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "An error occurred while retrieving users." });
-        }
+        var result = await _userService.GetAllUsersAsync(page, pageSize);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -117,20 +84,8 @@ public class UserController : ControllerBase
             return Unauthorized(new { message = "Invalid user token" });
         }
 
-        try
-        {
-            var result = await _userService.GetUserByIdAsync(userId, id);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "An error occurred while retrieving the user." });
-        }
+        var result = await _userService.GetUserByIdAsync(userId, id);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
@@ -147,24 +102,8 @@ public class UserController : ControllerBase
             return Unauthorized(new { message = "Invalid user token" });
         }
 
-        try
-        {
-            await _userService.DeleteUserAsync(userId, id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(403, new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "An error occurred while deleting the user." });
-        }
+        await _userService.DeleteUserAsync(userId, id);
+        return NoContent();
     }
 
     [HttpPut("{id}/role")]
@@ -182,27 +121,7 @@ public class UserController : ControllerBase
             return Unauthorized(new { message = "Invalid user token" });
         }
 
-        try
-        {
-            var result = await _userService.AssignRoleAsync(userId, id, request.Role);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(403, new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "An error occurred while assigning the role." });
-        }
+        var result = await _userService.AssignRoleAsync(userId, id, request.Role);
+        return Ok(result);
     }
 }

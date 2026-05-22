@@ -42,7 +42,7 @@ public class Repository<T> : IRepository<T> where T : class
         var entity = await GetByIdAsync(id);
         if (entity == null)
         {
-            throw new InvalidOperationException($"Entity with id {id} not found.");
+            throw new KeyNotFoundException($"Entity with id {id} not found.");
         }
 
         applyChanges(entity);

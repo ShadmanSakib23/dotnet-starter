@@ -35,17 +35,8 @@ public class TransactionController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _transactionService.CreateTransactionAsync(userId, request);
-            return CreatedAtAction(nameof(GetTransaction), new { id = result.Id }, result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating transaction for user {UserId}", userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while creating the transaction" });
-        }
+        var result = await _transactionService.CreateTransactionAsync(userId, request);
+        return CreatedAtAction(nameof(GetTransaction), new { id = result.Id }, result);
     }
 
     [HttpGet("{id}")]
@@ -61,25 +52,8 @@ public class TransactionController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _transactionService.GetTransactionAsync(userId, id);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving transaction {TransactionId} for user {UserId}", id, userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while retrieving the transaction" });
-        }
+        var result = await _transactionService.GetTransactionAsync(userId, id);
+        return Ok(result);
     }
 
     [HttpGet]
@@ -94,17 +68,8 @@ public class TransactionController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _transactionService.GetUserTransactionsAsync(userId, filter);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving transactions for user {UserId}", userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while retrieving transactions" });
-        }
+        var result = await _transactionService.GetUserTransactionsAsync(userId, filter);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
@@ -120,25 +85,8 @@ public class TransactionController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            await _transactionService.DeleteTransactionAsync(userId, id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting transaction {TransactionId} for user {UserId}", id, userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while deleting the transaction" });
-        }
+        await _transactionService.DeleteTransactionAsync(userId, id);
+        return NoContent();
     }
 
     private Guid GetUserId()

@@ -2,6 +2,7 @@ using StarterApp.Interfaces;
 using StarterApp.Repositories;
 using StarterApp.DTOs;
 using StarterApp.Enums;
+using StarterApp.Exceptions;
 
 namespace StarterApp.Services;
 
@@ -145,7 +146,7 @@ public class UserService : IUserService
 
         if ((int)newRole <= (int)user.Role)
         {
-            throw new InvalidOperationException($"Cannot assign role {newRole}. Role can only be upgraded, not demoted.");
+            throw new BadRequestException($"Cannot assign role {newRole}. Role can only be upgraded, not demoted.");
         }
 
         user.Role = newRole;

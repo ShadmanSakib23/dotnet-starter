@@ -41,17 +41,8 @@ public class AnalyticsController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _analyticsService.GetCategoryAnalyticsAsync(userId, startDate, endDate);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving category analytics for user {UserId}", userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while retrieving category analytics" });
-        }
+        var result = await _analyticsService.GetCategoryAnalyticsAsync(userId, startDate, endDate);
+        return Ok(result);
     }
 
     /// <summary>
@@ -71,17 +62,8 @@ public class AnalyticsController : ControllerBase
             return Unauthorized("Invalid user token");
         }
 
-        try
-        {
-            var result = await _analyticsService.GetMonthlyAnalyticsAsync(userId, months);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving monthly analytics for user {UserId}", userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while retrieving monthly analytics" });
-        }
+        var result = await _analyticsService.GetMonthlyAnalyticsAsync(userId, months);
+        return Ok(result);
     }
 
     /// <summary>
@@ -103,17 +85,8 @@ public class AnalyticsController : ControllerBase
             return Unauthorized("Invalid user token");
         }
         
-        try
-        {
-            var result = await _analyticsService.GetSummaryAnalyticsAsync(userId, startDate, endDate);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving summary analytics for user {UserId}", userId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An error occurred while retrieving summary analytics" });
-        }
+        var result = await _analyticsService.GetSummaryAnalyticsAsync(userId, startDate, endDate);
+        return Ok(result);
     }
 
     private Guid GetUserId()
