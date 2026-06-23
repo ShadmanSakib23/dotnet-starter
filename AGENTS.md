@@ -36,8 +36,8 @@ Interfaces live alongside implementations. DI is wired in `Extensions/ServiceCol
 - **Enums**: Stored as strings in DB via `HasConversion<string>()`; serialized as strings via `JsonStringEnumConverter`
 - **Decimal**: Use `decimal` for monetary values (amounts are `decimal(18,2)`)
 - **Async**: All data operations must be `async/await` — never `.Result` or `.Wait()`
-- **Repository base**: `Repository<T>` calls `SaveChangesAsync()` inside `AddAsync()`; don't save separately after `AddAsync`
-- **DB column naming**: snake_case (e.g., `user_id`, `processed_at`); UUID PKs default to `gen_random_uuid()`
+- **Repository base**: `Repository<T>` calls `SaveChangesAsync()` inside `AddAsync()`, `UpdateAsync()`, and `DeleteAsync()`; don't save separately after these operations
+- **DB naming**: Use `[Table("table_name")]` and `[Column("column_name")]` annotations. Use snake_case (e.g., `user_id`, `processed_at`); UUID PKs default to `gen_random_uuid()`
 
 ## Authentication
 
@@ -46,6 +46,7 @@ Interfaces live alongside implementations. DI is wired in `Extensions/ServiceCol
 - Extract user ID in controllers: check `ClaimTypes.NameIdentifier` then fall back to `"sub"` claim
 - Passwords hashed with `IPasswordHasher<User>` — never store plaintext; check with `VerifyHashedPassword()` returning `PasswordVerificationResult`
 - **Always** validate that the JWT `userId` matches the resource owner before returning/mutating data
+- **Authorization Policies**: Use `[Authorize(Policy = "AdminOrAbove")]` or `[Authorize(Policy = "AnyRole")]` as configured in `ServiceCollectionExtensions.cs` to restrict access based on the `UserRole` enum
 
 ## Database & Migrations
 
@@ -54,7 +55,7 @@ dotnet ef migrations add <MigrationName>
 dotnet ef database update
 ```
 
-- Fluent API config classes in `Data/Configurations/`
+- Fluent API config classes in `Data/Configurations/` for explicit default values (e.g. `CURRENT_TIMESTAMP`), unique constraints, and custom index names
 - Cascade deletes: deleting a `User` removes all their `Transaction` records
 - Indexes on `email`, `username`, `user_id`, `processed_at`
 
